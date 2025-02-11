@@ -21,7 +21,7 @@ class UrdfConverterCfg(AssetConverterBaseCfg):
         class PDGainsCfg:
             """Configuration for the PD gains of the drive."""
 
-            stiffness: dict[str, float] | float = MISSING
+            stiffness: dict[str, float] | float | None = None
             """The stiffness of the joint drive in Nm/rad or N/rad.
 
             If None, the stiffness is set to the value parsed from the URDF file.

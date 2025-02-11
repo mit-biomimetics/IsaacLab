@@ -18,6 +18,7 @@ The following example shows how to wrap an environment for RSL-RL:
 
 import gymnasium as gym
 import torch
+import numpy as np
 
 from rsl_rl.env import VecEnv
 
@@ -72,9 +73,9 @@ class RslRlVecEnvWrapper(VecEnv):
         else:
             self.num_actions = gym.spaces.flatdim(self.unwrapped.single_action_space)
         if hasattr(self.unwrapped, "observation_manager"):
-            self.num_obs = self.unwrapped.observation_manager.group_obs_dim["policy"][0]
+            self.num_obs = self.unwrapped.observation_manager.group_obs_dim["actor"][0]
         else:
-            self.num_obs = gym.spaces.flatdim(self.unwrapped.single_observation_space["policy"])
+            self.num_obs = gym.spaces.flatdim(self.unwrapped.single_observation_space["actor"])
         # -- privileged observations
         if (
             hasattr(self.unwrapped, "observation_manager")
@@ -132,18 +133,23 @@ class RslRlVecEnvWrapper(VecEnv):
         This will be the bare :class:`gymnasium.Env` environment, underneath all layers of wrappers.
         """
         return self.env.unwrapped
-
+    
+    @property
+    def viewport_camera_image(self) -> np.ndarray:
+        """Returns the viewport camera image."""
+        return self.unwrapped.get_viewport_camera_image()
+    
     """
     Properties
     """
 
-    def get_observations(self) -> tuple[torch.Tensor, dict]:
+    def get_observations(self) -> tuple[torch.Tensor, torch.Tensor]:
         """Returns the current observations of the environment."""
         if hasattr(self.unwrapped, "observation_manager"):
             obs_dict = self.unwrapped.observation_manager.compute()
         else:
             obs_dict = self.unwrapped._get_observations()
-        return obs_dict["policy"], {"observations": obs_dict}
+        return obs_dict["actor"], obs_dict["critic"]
 
     @property
     def episode_length_buf(self) -> torch.Tensor:
@@ -166,27 +172,24 @@ class RslRlVecEnvWrapper(VecEnv):
     def seed(self, seed: int = -1) -> int:  # noqa: D102
         return self.unwrapped.seed(seed)
 
-    def reset(self) -> tuple[torch.Tensor, dict]:  # noqa: D102
+    def reset(self) -> tuple[torch.Tensor, torch.Tensor]:  # noqa: D102
         # reset the environment
         obs_dict, _ = self.env.reset()
         # return observations
-        return obs_dict["policy"], {"observations": obs_dict}
+        return obs_dict["actor"], obs_dict["critic"]
 
     def step(self, actions: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, dict]:
         # record step information
-        obs_dict, rew, terminated, truncated, extras = self.env.step(actions)
+        obs_dict, rew, terminated, time_outs, extras = self.env.step(actions)
         # compute dones for compatibility with RSL-RL
-        dones = (terminated | truncated).to(dtype=torch.long)
-        # move extra observations to the extras dict
-        obs = obs_dict["policy"]
-        extras["observations"] = obs_dict
+        dones = (terminated | time_outs).to(dtype=torch.long)
         # move time out information to the extras dict
         # this is only needed for infinite horizon tasks
         if not self.unwrapped.cfg.is_finite_horizon:
-            extras["time_outs"] = truncated
+            extras["time_outs"] = time_outs
 
         # return the step information
-        return obs, rew, dones, extras
+        return obs_dict, rew, dones, extras
 
     def close(self):  # noqa: D102
         return self.env.close()

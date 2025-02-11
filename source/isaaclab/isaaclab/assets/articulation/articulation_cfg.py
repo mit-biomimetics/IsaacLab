@@ -47,6 +47,12 @@ class ArticulationCfg(AssetBaseCfg):
     The joint position limits are scaled by this factor to allow for a limited range of motion.
     This is accessible in the articulation data through :attr:`ArticulationData.soft_joint_pos_limits` attribute.
     """
-
+    
+    soft_joint_vel_limit_factor: float = 1.0
+    """Fraction specifying the range of DOF velocity limits (parsed from the asset) to use. Defaults to 1.0."""
+    
+    soft_joint_torque_limit_factor: float = 1.0
+    """Fraction specifying the range of DOF torque limits (parsed from the asset) to use. Defaults to 1.0."""
+    
     actuators: dict[str, ActuatorBaseCfg] = MISSING
     """Actuators for the robot with corresponding joint names."""

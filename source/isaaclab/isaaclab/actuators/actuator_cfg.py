@@ -93,6 +93,14 @@ class IdealPDActuatorCfg(ActuatorBaseCfg):
     """Configuration for an ideal PD actuator."""
 
     class_type: type = actuator_pd.IdealPDActuator
+    apply_humanoid_jacobian: bool = False # knee and ankle joints coupling for MIT humanoid
+
+
+@configclass
+class TorqueActuatorCfg(ActuatorBaseCfg):
+    """Configuration for an ideal PD actuator."""
+
+    class_type: type = actuator_pd.TorqueActuator
 
 
 @configclass

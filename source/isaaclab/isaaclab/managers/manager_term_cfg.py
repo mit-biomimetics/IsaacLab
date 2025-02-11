@@ -112,7 +112,7 @@ class CommandTermCfg:
     The class should inherit from :class:`isaaclab.managers.command_manager.CommandTerm`.
     """
 
-    resampling_time_range: tuple[float, float] = MISSING
+    resampling_time_range: tuple[float, float] | None = None
     """Time before commands are changed [s]."""
     debug_vis: bool = False
     """Whether to visualize debug information. Defaults to False."""

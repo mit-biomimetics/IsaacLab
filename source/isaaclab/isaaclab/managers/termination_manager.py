@@ -65,8 +65,8 @@ class TerminationManager(ManagerBase):
         for term_name in self._term_names:
             self._term_dones[term_name] = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
         # create buffer for managing termination per environment
-        self._truncated_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
-        self._terminated_buf = torch.zeros_like(self._truncated_buf)
+        self._time_outs_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
+        self._terminated_buf = torch.zeros_like(self._time_outs_buf)
 
     def __str__(self) -> str:
         """Returns: A string representation for termination manager."""
@@ -99,7 +99,7 @@ class TerminationManager(ManagerBase):
     @property
     def dones(self) -> torch.Tensor:
         """The net termination signal. Shape is (num_envs,)."""
-        return self._truncated_buf | self._terminated_buf
+        return self._time_outs_buf | self._terminated_buf
 
     @property
     def time_outs(self) -> torch.Tensor:
@@ -109,7 +109,7 @@ class TerminationManager(ManagerBase):
         (that is outside the scope of a MDP). For example, the environment may be terminated if the episode has
         timed out (i.e. reached max episode length).
         """
-        return self._truncated_buf
+        return self._time_outs_buf
 
     @property
     def terminated(self) -> torch.Tensor:
@@ -141,7 +141,7 @@ class TerminationManager(ManagerBase):
         extras = {}
         for key in self._term_dones.keys():
             # store information
-            extras["Episode_Termination/" + key] = torch.count_nonzero(self._term_dones[key][env_ids]).item()
+            extras["Episode Termination/" + key] = torch.count_nonzero(self._term_dones[key][env_ids]).item()
         # reset all the reward terms
         for term_cfg in self._class_term_cfgs:
             term_cfg.func.reset(env_ids=env_ids)
@@ -158,20 +158,20 @@ class TerminationManager(ManagerBase):
             The combined termination signal of shape (num_envs,).
         """
         # reset computation
-        self._truncated_buf[:] = False
+        self._time_outs_buf[:] = False
         self._terminated_buf[:] = False
         # iterate over all the termination terms
         for name, term_cfg in zip(self._term_names, self._term_cfgs):
             value = term_cfg.func(self._env, **term_cfg.params)
             # store timeout signal separately
             if term_cfg.time_out:
-                self._truncated_buf |= value
+                self._time_outs_buf |= value
             else:
                 self._terminated_buf |= value
             # add to episode dones
             self._term_dones[name][:] = value
         # return combined termination signal
-        return self._truncated_buf | self._terminated_buf
+        return self._time_outs_buf | self._terminated_buf
 
     def get_term(self, name: str) -> torch.Tensor:
         """Returns the termination term with the specified name.

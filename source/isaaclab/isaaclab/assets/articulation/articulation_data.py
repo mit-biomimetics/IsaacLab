@@ -252,7 +252,10 @@ class ArticulationData:
 
     soft_joint_vel_limits: torch.Tensor = None
     """Joint velocity limits for all joints. Shape is (num_instances, num_joints)."""
-
+    
+    soft_joint_torque_limits: torch.Tensor = None
+    """Joint torque limits for all joints. Shape is (num_instances, num_joints)."""
+    
     gear_ratio: torch.Tensor = None
     """Gear ratio for relating motor torques to applied Joint torques. Shape is (num_instances, num_joints)."""
 
