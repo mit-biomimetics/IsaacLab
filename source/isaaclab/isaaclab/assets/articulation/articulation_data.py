@@ -358,6 +358,24 @@ class ArticulationData:
 
     fixed_tendon_pos_limits: torch.Tensor = None
     """Fixed tendon position limits provided to the simulation. Shape is (num_instances, num_fixed_tendons, 2)."""
+    fixed_tendon_limit: torch.Tensor = None
+    """Fixed tendon limits provided to simulation. Shape is (num_instances, num_fixed_tendons, 2)."""
+
+    ##
+    # Other Data.
+    ##
+
+    soft_joint_pos_limits: torch.Tensor = None
+    """Joint positions limits for all joints. Shape is (num_instances, num_joints, 2)."""
+
+    soft_joint_vel_limits: torch.Tensor = None
+    """Joint velocity limits for all joints. Shape is (num_instances, num_joints)."""
+    
+    soft_joint_torque_limits: torch.Tensor = None
+    """Joint torque limits for all joints. Shape is (num_instances, num_joints)."""
+    
+    gear_ratio: torch.Tensor = None
+    """Gear ratio for relating motor torques to applied Joint torques. Shape is (num_instances, num_joints)."""
 
     ##
     # Properties.

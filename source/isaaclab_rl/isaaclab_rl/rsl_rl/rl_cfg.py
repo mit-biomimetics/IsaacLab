@@ -41,6 +41,12 @@ class RslRlPpoActorCriticCfg:
     activation: str = MISSING
     """The activation function for the actor and critic networks."""
 
+    normalize_obs: bool = MISSING
+    """Whether to normalize observations."""
+
+    custom_initialization: bool = MISSING
+    """Whether to use custom initialization."""
+
 
 @configclass
 class RslRlPpoActorCriticRecurrentCfg(RslRlPpoActorCriticCfg):
@@ -107,20 +113,20 @@ class RslRlPpoAlgorithmCfg:
     clip_param: float = MISSING
     """The clipping parameter for the policy."""
 
-    normalize_advantage_per_mini_batch: bool = False
-    """Whether to normalize the advantage per mini-batch. Default is False.
+    # normalize_advantage_per_mini_batch: bool = False
+    # """Whether to normalize the advantage per mini-batch. Default is False.
 
-    If True, the advantage is normalized over the mini-batches only.
-    Otherwise, the advantage is normalized over the entire collected trajectories.
-    """
+    # If True, the advantage is normalized over the mini-batches only.
+    # Otherwise, the advantage is normalized over the entire collected trajectories.
+    # """
 
-    symmetry_cfg: RslRlSymmetryCfg | None = None
-    """The symmetry configuration. Default is None, in which case symmetry is not used."""
+    # symmetry_cfg: RslRlSymmetryCfg | None = None
+    # """The symmetry configuration. Default is None, in which case symmetry is not used."""
 
-    rnd_cfg: RslRlRndCfg | None = None
-    """The configuration for the Random Network Distillation (RND) module. Default is None,
-    in which case RND is not used.
-    """
+    # rnd_cfg: RslRlRndCfg | None = None
+    # """The configuration for the Random Network Distillation (RND) module. Default is None,
+    # in which case RND is not used.
+    # """
 
 
 #########################

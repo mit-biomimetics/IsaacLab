@@ -169,9 +169,10 @@ def get_checkpoint_path(
     # check if runs present in directory
     try:
         # find all runs in the directory that math the regex expression
-        runs = [
-            os.path.join(log_path, run) for run in os.scandir(log_path) if run.is_dir() and re.match(run_dir, run.name)
-        ]
+        runs = os.listdir(log_path)
+        if 'exported' in runs: runs.remove('exported')
+        if 'videos' in runs: runs.remove('videos')
+        if 'analysis' in runs: runs.remove('analysis')
         # sort matched runs by alphabetical order (latest run should be last)
         if sort_alpha:
             runs.sort()
@@ -179,9 +180,11 @@ def get_checkpoint_path(
             runs = sorted(runs, key=os.path.getmtime)
         # create last run file path
         if other_dirs is not None:
-            run_path = os.path.join(runs[-1], *other_dirs)
+            run_path = os.path.join(log_path, runs[-1], *other_dirs)
+        elif run_dir != '.*':
+            run_path = os.path.join(log_path, run_dir)
         else:
-            run_path = runs[-1]
+            run_path = os.path.join(log_path, runs[-1])
     except IndexError:
         raise ValueError(f"No runs present in the directory: '{log_path}' match: '{run_dir}'.")
 
