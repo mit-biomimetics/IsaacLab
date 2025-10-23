@@ -57,6 +57,5 @@ from .mimic_env_cfg import *
 from .utils.marl import multi_agent_to_single_agent, multi_agent_with_one_agent
 
 from extensions.humanoid.task import *
-from extensions.manipulator.task import *
 from extensions.pendulum.task import *
 from extensions.cartpole.task import *
